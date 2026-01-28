@@ -26,7 +26,7 @@ def load_resources():
         def forward(self, x): return self.net(x)
 
     model = NewsMLP(
-        input_dim=vectorizer.max_features or len(vectorizer.vocabulary_),
+        input_dim = len(vectorizer.get_feature_names_out()),
         num_classes=len(label_names)
     )
     model.load_state_dict(torch.load("model_state_dict.pt", map_location="cpu"))
@@ -127,3 +127,4 @@ else:
         })
 
         st.bar_chart(df, x="label", y="probability")
+
