@@ -12,8 +12,11 @@ st.set_page_config(page_title="20 Newsgroups Classifier", layout="wide")
 @st.cache_resource
 def load_resources():
     # Load vectorizer
-    vectorizer = joblib.load("vectorizer.pkl")
-
+    vectorizer = joblib.load("convert-to-streamlit-app/vectorizer.pkl")
+    with open("convert-to-streamlit-app/label_names.json") as f:
+        label_names = json.load(f)
+    model.load_state_dict(torch.load("convert-to-streamlit-app/model_state_dict.pt", map_location="cpu"))
+    
     # Confirm it's fitted
     try:
         input_dim = len(vectorizer.get_feature_names_out())
@@ -135,5 +138,6 @@ else:
         })
 
         st.bar_chart(df, x="label", y="probability")
+
 
 
