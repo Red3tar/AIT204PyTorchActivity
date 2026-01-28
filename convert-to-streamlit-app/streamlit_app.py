@@ -11,9 +11,9 @@ st.set_page_config(page_title="20 Newsgroups Classifier", layout="wide")
 # ---------------------------------------------------------
 @st.cache_resource
 def load_resources():
-    vectorizer = joblib.load("vectorizer.pkl")
-    with open("label_names.json") as f:
-        label_names = json.load(f)
+    joblib.load("convert-to-streamlit-app/vectorizer.pkl")
+    torch.load("convert-to-streamlit-app/model_state_dict.pt", map_location="cpu")
+    open("convert-to-streamlit-app/label_names.json")
 
     class NewsMLP(nn.Module):
         def __init__(self, input_dim, num_classes):
@@ -125,4 +125,5 @@ else:
             "label": [label_names[i] for i in top],
             "probability": [float(probs[0][i]) for i in top]
         })
+
         st.bar_chart(df, x="label", y="probability")
