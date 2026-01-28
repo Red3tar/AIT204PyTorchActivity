@@ -11,10 +11,20 @@ st.set_page_config(page_title="20 Newsgroups Classifier", layout="wide")
 # ---------------------------------------------------------
 @st.cache_resource
 def load_resources():
-    joblib.load("convert-to-streamlit-app/vectorizer.pkl")
-    torch.load("convert-to-streamlit-app/model_state_dict.pt", map_location="cpu")
-    open("convert-to-streamlit-app/label_names.json")
+    # Load vectorizer
+    vectorizer = joblib.load("vectorizer.pkl")
 
+    # Confirm it's fitted
+    try:
+        input_dim = len(vectorizer.get_feature_names_out())
+    except AttributeError:
+        raise ValueError("Vectorizer appears unfitted or corrupted. Please re-export after fitting.")
+
+    # Load label names
+    with open("label_names.json") as f:
+        label_names = json.load(f)
+
+    # Define model
     class NewsMLP(nn.Module):
         def __init__(self, input_dim, num_classes):
             super().__init__()
@@ -25,10 +35,8 @@ def load_resources():
             )
         def forward(self, x): return self.net(x)
 
-    model = NewsMLP(
-        input_dim = len(vectorizer.get_feature_names_out()),
-        num_classes=len(label_names)
-    )
+    # Initialize and load weights
+    model = NewsMLP(input_dim=input_dim, num_classes=len(label_names))
     model.load_state_dict(torch.load("model_state_dict.pt", map_location="cpu"))
     model.eval()
 
@@ -127,4 +135,5 @@ else:
         })
 
         st.bar_chart(df, x="label", y="probability")
+
 
